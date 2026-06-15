@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2026年 丞石建築集團｜員工旅遊補助計算</title>
+  <style>
+    :root{
+      --ink:#2c2a25;
+      --muted:#706a5f;
+      --paper:#f7f2e8;
+      --paper-2:#fffaf1;
+      --line:#dfd2bd;
+      --stone:#8b7b62;
+      --brown:#5d4633;
+      --brown-2:#3f2f22;
+      --gold:#b8945d;
+      --gold-2:#d9bd83;
+      --green:#52665b;
+      --danger:#a94438;
+      --ok:#39715c;
+      --shadow:0 24px 70px rgba(59,43,31,.16);
+      --radius:24px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:"Noto Serif TC","Noto Sans TC","Microsoft JhengHei",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      color:var(--ink);
+      background:
+        radial-gradient(circle at 15% 5%, rgba(216,188,130,.35), transparent 28%),
+        radial-gradient(circle at 86% 18%, rgba(93,70,51,.18), transparent 30%),
+        linear-gradient(135deg,#efe6d6 0%,#fbf7ef 45%,#e8ddcb 100%);
+      letter-spacing:.02em;
+    }
+    .grain{
+      position:fixed; inset:0; pointer-events:none; opacity:.35; mix-blend-mode:multiply;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.14'/%3E%3C/svg%3E");
+    }
+    .shell{width:min(1120px,calc(100% - 34px)); margin:0 auto; padding:42px 0 54px; position:relative;}
+    .hero{
+      display:grid; grid-template-columns:1.02fr .98fr; gap:28px; align-items:stretch; margin-bottom:24px;
+    }
+    .brand-card,.calc-card,.result-card,.note-card{
+      border:1px solid rgba(93,70,51,.16);
+      background:linear-gradient(180deg,rgba(255,250,241,.94),rgba(247,242,232,.88));
+      border-radius:var(--radius); box-shadow:var(--shadow); backdrop-filter: blur(10px);
+    }
+    .brand-card{padding:38px; position:relative; overflow:hidden; min-height:360px; display:flex; flex-direction:column; justify-content:center;}
+    .brand-card:before{
+      content:""; position:absolute; inset:18px; border:1px solid rgba(184,148,93,.35); border-radius:20px; pointer-events:none;
+    }
+    .brand-card:after{
+      content:"OUR JOURNEY"; position:absolute; right:-28px; bottom:34px; transform:rotate(-90deg);
+      color:rgba(93,70,51,.16); font-size:14px; letter-spacing:.36em; font-weight:700;
+    }
+    .eyebrow{display:flex; align-items:center; gap:12px; color:var(--gold); font-weight:700; letter-spacing:.2em; font-size:13px; margin-bottom:24px; text-transform:uppercase;}
+    .eyebrow:before{content:""; width:38px; height:1px; background:var(--gold);}
+    h1{font-size:clamp(34px,5vw,56px); line-height:1.14; margin:0 0 22px; color:var(--brown-2); font-weight:800;}
+    .subtitle{font-size:18px; line-height:1.85; color:var(--muted); max-width:620px; margin:0;}
+    .calc-card{padding:30px;}
+    .section-title{display:flex; justify-content:space-between; align-items:flex-end; gap:18px; margin-bottom:20px;}
+    .section-title h2{margin:0; font-size:25px; color:var(--brown-2);}
+    .tag{border:1px solid rgba(184,148,93,.48); color:var(--brown); background:rgba(216,189,131,.18); border-radius:999px; padding:8px 12px; font-size:13px; white-space:nowrap;}
+    label{display:block; font-size:14px; color:var(--brown); font-weight:700; margin-bottom:8px;}
+    .input-row{display:grid; grid-template-columns:1fr; gap:16px;}
+    input[type="date"], input[type="number"]{
+      width:100%; border:1px solid var(--line); border-radius:18px; padding:17px 18px; font-size:20px;
+      background:#fffdf8; color:var(--ink); outline:none; transition:.2s ease; font-family:inherit;
+    }
+    input[type="date"]:focus,input[type="number"]:focus{border-color:var(--gold); box-shadow:0 0 0 4px rgba(184,148,93,.18);}
+    .hint{margin-top:8px; font-size:13px; color:var(--muted); line-height:1.55;}
+    .leave-box{margin-top:16px; padding:15px 16px; border-radius:18px; background:rgba(255,255,255,.55); border:1px dashed rgba(139,123,98,.36);}
+    .check-row{display:flex; align-items:center; gap:10px; color:var(--brown); font-weight:800; cursor:pointer; user-select:none;}
+    .check-row input{width:18px; height:18px; accent-color:var(--brown);}
+    .leave-fields{margin-top:14px;}
+    .hidden{display:none;}
+    .btns{display:flex; gap:12px; margin-top:22px; flex-wrap:wrap;}
+    button{border:0; cursor:pointer; font-family:inherit; border-radius:999px; padding:13px 18px; font-weight:800; letter-spacing:.04em; transition:.2s ease;}
+    .primary{background:linear-gradient(135deg,var(--brown-2),var(--brown)); color:#fff7ea; box-shadow:0 12px 28px rgba(63,47,34,.22);}
+    .secondary{background:rgba(255,255,255,.66); color:var(--brown); border:1px solid var(--line);}
+    button:hover{transform:translateY(-1px)}
+    .result-grid{display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-top:24px;}
+    .result-card{padding:24px; position:relative; overflow:hidden;}
+    .result-card:after{content:""; position:absolute; width:130px; height:130px; border-radius:50%; right:-58px; top:-58px; background:rgba(184,148,93,.18);}
+    .result-label{font-size:14px; color:var(--muted); margin-bottom:8px; font-weight:700;}
+    .amount{font-size:clamp(34px,4.5vw,54px); line-height:1; color:var(--brown-2); font-weight:900; margin:0; font-family:Georgia,"Times New Roman",serif;}
+    .amount span{font-size:18px; margin-right:6px; color:var(--gold);}
+    .ratio-wrap{margin-top:20px; padding:18px; border-radius:20px; background:rgba(255,255,255,.55); border:1px solid rgba(223,210,189,.85);}
+    .ratio-top{display:flex; justify-content:space-between; align-items:center; font-size:14px; color:var(--brown); font-weight:800; margin-bottom:10px;}
+    .bar{height:12px; background:#eadfce; border-radius:999px; overflow:hidden;}
+    .bar span{display:block; height:100%; width:0%; background:linear-gradient(90deg,var(--gold),var(--brown)); border-radius:999px; transition:width .45s ease;}
+    .status{margin-top:16px; padding:13px 15px; border-radius:16px; font-weight:800; font-size:15px; line-height:1.55;}
+    .status.ok{background:rgba(57,113,92,.12); color:var(--ok); border:1px solid rgba(57,113,92,.22);}
+    .status.warn{background:rgba(169,68,56,.10); color:var(--danger); border:1px solid rgba(169,68,56,.22);}
+    .details{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:18px;}
+    .detail{padding:14px; border-radius:16px; background:rgba(255,255,255,.52); border:1px solid rgba(223,210,189,.8);}
+    .detail b{display:block; color:var(--brown-2); font-size:18px; margin-top:4px;}
+    .detail small{color:var(--muted);}
+    .note-card{margin-top:24px; padding:24px 28px;}
+    .note-card h3{margin:0 0 12px; color:var(--brown-2);}
+    .note-card ol{margin:0; padding-left:20px; color:var(--muted); line-height:1.8;}
+    .footer{display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-top:18px; color:rgba(63,47,34,.7); font-size:13px;}
+    .print-only{display:none;}
+    @media(max-width:850px){
+      .hero{grid-template-columns:1fr}.brand-card{min-height:auto}.result-grid,.details{grid-template-columns:1fr}.shell{padding-top:24px}.brand-card,.calc-card{padding:24px}.section-title{align-items:flex-start; flex-direction:column}.tag{white-space:normal}.brand-card:after{display:none}
+    }
+    @media print{
+      body{background:white}.grain,.btns,.leave-box{display:none}.shell{width:100%; padding:0}.brand-card,.calc-card,.result-card,.note-card{box-shadow:none; break-inside:avoid}.print-only{display:block}
+    }
+  </style>
+</head>
+<body>
+  <div class="grain"></div>
+  <main class="shell">
+    <section class="hero">
+      <article class="brand-card">
+        <div class="eyebrow">Honor Construction</div>
+        <h1>2026年 丞石建築集團<br>員工旅遊 補助計算</h1>
+        <p class="subtitle">同仁輸入到職日後，即時計算本人與眷屬補助金額。</p>
+      </article>
+
+      <section class="calc-card">
+        <div class="section-title">
+          <h2>補助試算</h2>
+          <span class="tag">期間：2025/11/01－2026/10/31</span>
+        </div>
+        <div class="input-row">
+          <div>
+            <label for="hireDate">請輸入同仁到職日</label>
+            <input id="hireDate" type="date" value="2025-11-01" max="2026-10-31" />
+            <div class="hint">範例：2025/11/01。若到職日晚於 2026/10/31，將判定不符合本次員旅資格。</div>
+          </div>
+        </div>
+
+        <div class="leave-box">
+          <label class="check-row" for="hasLeave">
+            <input id="hasLeave" type="checkbox" />
+            <span>是否有留職停薪期間</span>
+          </label>
+          <div id="leaveFields" class="leave-fields hidden">
+            <label for="leaveDays">留職停薪天數</label>
+            <input id="leaveDays" type="number" min="0" step="1" value="0" />
+            <div class="hint">2025/11/01－2026/10/31 之留職停薪期間不計入年資；若無則不用勾選。</div>
+          </div>
+        </div>
+
+        <div class="btns">
+          <button class="primary" id="calcBtn">重新計算</button>
+          <button class="secondary" id="resetBtn">清除重填</button>
+          <button class="secondary" onclick="window.print()">列印 / 存成 PDF</button>
+        </div>
+
+        <div class="ratio-wrap">
+          <div class="ratio-top"><span>補助比例</span><span id="ratioText">--</span></div>
+          <div class="bar"><span id="ratioBar"></span></div>
+          <div id="status" class="status ok">請輸入到職日後進行試算。</div>
+        </div>
+      </section>
+    </section>
+
+    <section class="result-grid">
+      <article class="result-card">
+        <div class="result-label">同仁本人補助</div>
+        <p class="amount"><span>NT$</span><output id="employeeSubsidy">0</output></p>
+        <div class="hint">公式：40,000 × 補助比例，四捨五入至元。</div>
+      </article>
+      <article class="result-card">
+        <div class="result-label">眷屬補助</div>
+        <p class="amount"><span>NT$</span><output id="familySubsidy">0</output></p>
+        <div class="hint">公式：5,000 × 補助比例，四捨五入至元。</div>
+      </article>
+    </section>
+
+    <section class="details">
+      <div class="detail"><small>本次計算天數</small><b id="periodDays">365 天</b></div>
+      <div class="detail"><small>採計在職天數</small><b id="serviceDays">-- 天</b></div>
+      <div class="detail"><small>是否滿一年</small><b id="fullYear">--</b></div>
+    </section>
+
+    <section class="note-card">
+      <h3>計算規則說明</h3>
+      <ol>
+        <li>員旅費用暫以新臺幣 40,000 元為預估金額，最終金額可依旅行社核定費用調整。</li>
+        <li>年資滿一年之同仁，補助員旅費用全額；眷屬補助新臺幣 5,000 元。</li>
+        <li>未滿一年者，依 2025/11/01－2026/10/31 在職比例計算。</li>
+        <li>2025/11/01－2026/10/31 之留職停薪期間不計入年資；勾選後可輸入扣除天數。</li>
+      </ol>
+    </section>
+
+    <div class="footer">
+      <span>丞石建築集團｜員工旅遊補助試算工具</span>
+      <span>2026年員工旅遊</span>
+    </div>
+  </main>
+
+  <script>
+    const CONFIG = {
+      periodStart: '2025-11-01',
+      periodEnd: '2026-10-31',
+      employeeBase: 40000,
+      familyBase: 5000
+    };
+
+    const $ = id => document.getElementById(id);
+    const money = n => new Intl.NumberFormat('zh-TW').format(n);
+    const dateOnly = value => {
+      if(!value) return null;
+      const [y,m,d] = value.split('-').map(Number);
+      return new Date(y, m - 1, d);
+    };
+    const daysInclusive = (from, to) => Math.floor((to - from) / 86400000) + 1;
+    const clamp = (n, min, max) => Math.min(Math.max(n, min), max);
+
+    function calculate(){
+      const hire = dateOnly($('hireDate').value);
+      const start = dateOnly(CONFIG.periodStart);
+      const end = dateOnly(CONFIG.periodEnd);
+      const hasLeave = $('hasLeave').checked;
+      const leaveDays = hasLeave ? Math.max(0, parseInt($('leaveDays').value || '0', 10)) : 0;
+      const periodDays = daysInclusive(start, end);
+      $('periodDays').textContent = `${periodDays} 天`;
+
+      if(!hire || Number.isNaN(hire.getTime())){
+        render({ratio:0, serviceDays:0, employee:0, family:0, fullYear:'--', status:'請確認是否為日期格式，例如 2025/11/01。', ok:false});
+        return;
+      }
+
+      if(hire > end){
+        render({ratio:0, serviceDays:0, employee:0, family:0, fullYear:'否', status:'您的到職日為 2026/10/31 後，不符合本次員旅資格。', ok:false});
+        return;
+      }
+
+      const effectiveStart = hire < start ? start : hire;
+      const rawServiceDays = daysInclusive(effectiveStart, end);
+      const serviceDays = clamp(rawServiceDays - leaveDays, 0, periodDays);
+      const ratio = clamp(serviceDays / periodDays, 0, 1);
+      const employee = Math.round(CONFIG.employeeBase * ratio);
+      const family = Math.round(CONFIG.familyBase * ratio);
+      const fullYear = ratio >= 1 ? '是' : '否';
+      const status = ratio >= 1
+        ? '符合滿一年資格，員工本人與眷屬補助皆以全額計算。'
+        : `未滿一年，依採計在職天數 ${serviceDays} / ${periodDays} 折算補助。`;
+      render({ratio, serviceDays, employee, family, fullYear, status, ok:true});
+    }
+
+    function render(data){
+      $('employeeSubsidy').textContent = money(data.employee);
+      $('familySubsidy').textContent = money(data.family);
+      $('serviceDays').textContent = `${data.serviceDays} 天`;
+      $('fullYear').textContent = data.fullYear;
+      $('ratioText').textContent = `${(data.ratio * 100).toFixed(2)}%`;
+      $('ratioBar').style.width = `${data.ratio * 100}%`;
+      $('status').textContent = data.status;
+      $('status').className = `status ${data.ok ? 'ok' : 'warn'}`;
+    }
+
+    function toggleLeaveFields(){
+      const show = $('hasLeave').checked;
+      $('leaveFields').classList.toggle('hidden', !show);
+      if(!show){ $('leaveDays').value = 0; }
+      calculate();
+    }
+
+    $('calcBtn').addEventListener('click', calculate);
+    $('hireDate').addEventListener('input', calculate);
+    $('hasLeave').addEventListener('change', toggleLeaveFields);
+    $('leaveDays').addEventListener('input', calculate);
+    $('resetBtn').addEventListener('click', () => {
+      $('hireDate').value = '';
+      $('hasLeave').checked = false;
+      $('leaveDays').value = 0;
+      $('leaveFields').classList.add('hidden');
+      calculate();
+    });
+    calculate();
+  </script>
+</body>
+</html>
