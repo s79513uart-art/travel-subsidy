@@ -60,8 +60,10 @@
     }
     .eyebrow{display:flex; align-items:center; gap:12px; color:var(--gold); font-weight:700; letter-spacing:.2em; font-size:13px; margin-bottom:24px; text-transform:uppercase;}
     .eyebrow:before{content:""; width:38px; height:1px; background:var(--gold);}
-    h1{font-size:clamp(32px,4.6vw,52px); line-height:1.16; margin:0 0 20px; color:var(--brown-2); font-weight:800;}
+    h1{font-size:clamp(30px,4vw,48px); line-height:1.18; margin:0 0 20px; color:var(--brown-2); font-weight:800;}
     h1 span{display:block;}
+    h1 .company-line{font-size:clamp(24px,3.1vw,36px); white-space:nowrap; letter-spacing:-.035em;}
+    h1 .title-line{font-size:clamp(32px,4.1vw,50px); letter-spacing:-.02em;}
     .subtitle{font-size:18px; line-height:1.85; color:var(--muted); max-width:620px; margin:0;}
     .calc-card{padding:30px;}
     .section-title{display:flex; justify-content:space-between; align-items:flex-end; gap:18px; margin-bottom:20px;}
@@ -140,7 +142,9 @@
       .brand-card:after{display:none}
       .eyebrow{font-size:11px; letter-spacing:.16em; margin-bottom:14px;}
       .eyebrow:before{width:28px;}
-      h1{font-size:clamp(25px,6.8vw,31px); line-height:1.28; margin-bottom:12px; letter-spacing:-.02em;}
+      h1{font-size:clamp(23px,6vw,29px); line-height:1.26; margin-bottom:12px; letter-spacing:-.02em;}
+      h1 .company-line{font-size:clamp(18px,5vw,23px); white-space:nowrap; letter-spacing:-.055em;}
+      h1 .title-line{font-size:clamp(25px,6.4vw,31px);}
       .subtitle{font-size:15px; line-height:1.75;}
       .calc-card,.note-card{padding:20px 16px;}
       .section-title{align-items:flex-start; flex-direction:column; gap:10px; margin-bottom:18px;}
@@ -166,7 +170,9 @@
       .footer{font-size:12px;}
     }
     @media(max-width:390px){
-      h1{font-size:24px;}
+      h1{font-size:22px;}
+      h1 .company-line{font-size:18px;}
+      h1 .title-line{font-size:25px;}
       .brand-card,.calc-card,.note-card{padding-left:14px; padding-right:14px;}
       .shell{width:calc(100% - 16px);}
     }
@@ -181,7 +187,7 @@
     <section class="hero">
       <article class="brand-card">
         <div class="eyebrow">Honor Construction</div>
-        <h1><span>2026年 丞石建築集團</span><span>員工旅遊補助計算</span></h1>
+        <h1><span class="company-line">2026年 丞石建築集團</span><span class="title-line">員工旅遊補助計算</span></h1>
         <p class="subtitle">同仁輸入到職日後，即時計算本人與眷屬補助金額。</p>
       </article>
 
@@ -206,7 +212,7 @@
           <div id="leaveFields" class="leave-fields hidden">
             <label for="leaveDays">留職停薪天數</label>
             <input id="leaveDays" type="number" min="0" step="1" value="0" />
-            <div class="hint">2025/11/01－2026/10/31 之留職停薪期間不計入年資；若無則不用勾選。</div>
+            <div class="hint">在職期間之留職停薪期間不計入年資；若無則不用勾選。</div>
           </div>
         </div>
 
@@ -249,7 +255,7 @@
         <li>員旅費用暫以新臺幣 40,000 元為預估金額，最終金額可依旅行社核定費用調整。</li>
         <li>年資滿一年之同仁，補助員旅費用全額；眷屬補助新臺幣 5,000 元。</li>
         <li>未滿一年者，依 2025/11/01－2026/10/31 在職比例計算。</li>
-        <li>2025/11/01－2026/10/31 之留職停薪期間不計入年資；勾選後可輸入扣除天數。</li>
+        <li>在職期間之留職停薪期間不計入年資；勾選後可輸入扣除天數。</li>
       </ol>
     </section>
 
@@ -296,15 +302,18 @@
         return;
       }
 
-      const effectiveStart = hire < start ? start : hire;
-      const rawServiceDays = daysInclusive(effectiveStart, end);
-      const serviceDays = clamp(rawServiceDays - leaveDays, 0, periodDays);
-      const ratio = clamp(serviceDays / periodDays, 0, 1);
+      // 採計在職天數：同仁實際到職日至 2026/10/31 的天數，扣除留職停薪天數。
+      // 若早於 2025/11/01 到職，這裡仍顯示真實天數，不再以 365 天作為上限。
+      const rawServiceDays = daysInclusive(hire, end);
+      const serviceDays = Math.max(rawServiceDays - leaveDays, 0);
+      // 補助比例仍以本次補助期間 365 天為滿額上限，避免補助超過 100%。
+      const subsidyDays = clamp(serviceDays, 0, periodDays);
+      const ratio = clamp(subsidyDays / periodDays, 0, 1);
       const employee = Math.round(CONFIG.employeeBase * ratio);
       const family = Math.round(CONFIG.familyBase * ratio);
-      const fullYear = ratio >= 1 ? '是' : '否';
-      const status = ratio >= 1
-        ? '符合滿一年資格，員工本人與眷屬補助皆以全額計算。'
+      const fullYear = serviceDays >= periodDays ? '是' : '否';
+      const status = serviceDays >= periodDays
+        ? `採計在職天數為 ${serviceDays} 天，已符合滿一年資格，員工本人與眷屬補助皆以全額計算。`
         : `未滿一年，依採計在職天數 ${serviceDays} / ${periodDays} 折算補助。`;
       render({ratio, serviceDays, employee, family, fullYear, status, ok:true});
     }
